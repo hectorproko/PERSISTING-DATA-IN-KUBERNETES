@@ -578,6 +578,168 @@ deployment.apps/nginx-deployment configured
 
 ### PMANAGING VOLUMES DYNAMICALLY WITH PVS AND PVCS
 
+By default, in EKS, there is a default **storageClass** configured as part of EKS installation.  
+
+Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
+Approach 1  
+
+Create a manifest file for a PVC  
+
+``` bash
+hector@hector-Laptop:~$ kubectl get storageclass
+NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  21m
+hector@hector-Laptop:~$ nano nginx-volume-claim.yml
+
+hector@hector-Laptop:~$ kubectl apply -f nginx-volume-claim.yml
+persistentvolumeclaim/nginx-volume-claim created
+hector@hector-Laptop:~$ kubectl get pvc
+NAME                 STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+nginx-volume-claim   Pending                                      gp2            23s
+hector@hector-Laptop:~$
+```
+
+Moved the manifest to **Project23** folder
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl describe pvc nginx-volume-claim
+Name:          nginx-volume-claim
+Namespace:     default
+StorageClass:  gp2
+Status:        Pending
+Volume:
+Labels:        <none>
+Annotations:   <none>
+Finalizers:    [kubernetes.io/pvc-protection]
+Capacity:
+Access Modes:
+VolumeMode:    Filesystem
+Used By:       <none>
+Events:
+  Type    Reason                Age                   From                         Message
+  ----    ------                ----                  ----                         -------
+  Normal  WaitForFirstConsumer  99s (x26 over 7m52s)  persistentvolume-controller  waiting for first consumer to be created before binding
+hector@hector-Laptop:~/Project23$
+```
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl get deployments
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   1/1     1            1           29m
+
+
+hector@hector-Laptop:~/Project23$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
+pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
+hector@hector-Laptop:~/Project23$
+```
+
+To proceed, simply apply the new deployment configuration below.
+
+2. Then configure the Pod spec to use the PVC
+
+``` bash
+hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-volume-claim
+          mountPath: "/tmp/dare"
+      volumes:
+      - name: nginx-volume-claim
+        persistentVolumeClaim:
+          claimName: nginx-volume-claim
+
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
+deployment.apps/nginx-deployment unchanged
+hector@hector-Laptop:~/Project23$ kubectl get pv
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
+pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     11m
+hector@hector-Laptop:~/Project23$
+``` 
+
+EC2 > Elastic Block Store > Volumes  
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/createvolume2.png)  
+
+Copied the service .yaml from Project 22  
+
+``` bash
+hector@hector-Laptop:~/Project23$ cat nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  selector:
+    tier: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
+service/nginx-service created
+hector@hector-Laptop:~/Project23$ kubectl get svc
+NAME            TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
+kubernetes      ClusterIP      10.100.0.1      <none>                                                                    443/TCP        4h47m
+nginx-service   LoadBalancer   10.100.54.132   a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   80:31491/TCP   14s
+hector@hector-Laptop:~/Project23$
+```
+
+``` bash
+hector@hector-Laptop:~/Project23$ lynx a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   
+```
+
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx.png)  
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-64bfb7c874-2jrkh   1/1     Running   0          70s
+hector@hector-Laptop:~/Project23$
+
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
+service/nginx-service created
+hector@hector-Laptop:~/Project23$ kubectl get svc
+NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
+kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h22m
+nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   16s
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
+service/nginx-service unchanged
+hector@hector-Laptop:~/Project23$ ^C
+hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com
+```
+
+
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/404notfound.png)  
+
+
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/404notfound2.png)  
+
+
+
+
+
+
 
 
 
