@@ -736,11 +736,211 @@ hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-78503539
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/404notfound2.png)  
 
 
-
-
-
-
-
-
-
 ### PCONFIGMAP
+
+Lets go through the below process so that you can see an example of a `configMap` use case.
+1. Remove the **volumeMounts** and **PVC** sections of the manifest and use kubectl to apply the configuration
+
+``` bash
+		hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
+		apiVersion: apps/v1
+		kind: Deployment
+		metadata:
+		  name: nginx-deployment
+		  labels:
+		    tier: frontend
+		spec:
+		  replicas: 1
+		  selector:
+		    matchLabels:
+		      tier: frontend
+		  template:
+		    metadata:
+		      labels:
+		        tier: frontend
+		    spec:
+		      containers:
+		      - name: nginx
+		        image: nginx:latest
+		        ports:
+		        - containerPort: 80
+		      volumes:
+		      - name: nginx-volume-claim
+		        persistentVolumeClaim:
+		          claimName: nginx-volume-claim
+		
+		hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
+deployment.apps/nginx-deployment configured
+```
+
+
+2. port forward the service and ensure that you are able to see the "Welcome to nginx" page
+
+``` bash
+	hector@hector-Laptop:~/Project23$ kubectl get scv
+	error: the server doesn't have a resource type "scv"
+	hector@hector-Laptop:~/Project23$ kubectl get service
+	NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
+	kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h31m
+	nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   8m50s
+	hector@hector-Laptop:~/Project23$
+
+```
+
+
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx3.png) 
+
+1. exec into the running container and keep a copy of the **index.html** file somewhere. For example  
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-5b98d885c7-xdn7h   1/1     Running   0          4m43s
+hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-5b98d885c7-xdn7h -- bash
+root@nginx-deployment-5b98d885c7-xdn7h:/# cat /usr/share/nginx/html/index.html
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+<style>
+html { color-scheme: light dark; }
+body { width: 35em; margin: 0 auto;
+font-family: Tahoma, Verdana, Arial, sans-serif; }
+</style>
+</head>
+<body>
+<h1>Welcome to nginx!</h1>
+<p>If you see this page, the nginx web server is successfully installed and
+working. Further configuration is required.</p>
+
+<p>For online documentation and support please refer to
+<a href="http://nginx.org/">nginx.org</a>.<br/>
+Commercial support is available at
+<a href="http://nginx.com/">nginx.com</a>.</p>
+
+<p><em>Thank you for using nginx.</em></p>
+</body>
+</html>
+root@nginx-deployment-5b98d885c7-xdn7h:/#
+```
+
+In our own use case here, We will use configMap to create a file in a volume.  
+
+``` bash
+hector@hector-Laptop:~/Project23$ cat nginx-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: website-index-file
+data:
+  # file to be mounted inside a volume
+  index-file: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <title>Welcome to nginx!</title>
+    <style>
+    html { color-scheme: light dark; }
+    body { width: 35em; margin: 0 auto;
+    font-family: Tahoma, Verdana, Arial, sans-serif; }
+    </style>
+    </head>
+    <body>
+    <h1>Welcome to nginx!</h1>
+    <p>If you see this page, the nginx web server is successfully installed and
+    working. Further configuration is required.</p>
+
+    <p>For online documentation and support please refer to
+    <a href="http://nginx.org/">nginx.org</a>.<br/>
+    Commercial support is available at
+    <a href="http://nginx.com/">nginx.com</a>.</p>
+
+    <p><em>Thank you for using nginx.</em></p>
+    </body>
+    </html>
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-configmap.yaml
+configmap/website-index-file created
+hector@hector-Laptop:~/Project23$
+```
+
+
+Update the deployment file to use the configmap in the volumeMounts section  
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod
+nginx-pod-with-cm.yaml  nginx-pod.yaml          nginx-pod.yamlBAK
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod-with-cm.yaml
+deployment.apps/nginx-deployment created
+hector@hector-Laptop:~/Project23$ cat nginx-pod-with-cm.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name: config
+            mountPath: /usr/share/nginx/html
+            readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: website-index-file
+          items:
+          - key: index-file
+            path: index.html
+hector@hector-Laptop:~/Project23$
+```
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-7dcdfbd66f-m527b   1/1     Running   0          2m3s
+hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-7dcdfbd66f-m527b -- bash
+root@nginx-deployment-7dcdfbd66f-m527b:/# ls -ltr  /usr/share/nginx/html
+total 0
+lrwxrwxrwx 1 root root 17 Aug 11 21:29 index.html -> ..data/index.html
+root@nginx-deployment-7dcdfbd66f-m527b:/#
+
+hector@hector-Laptop:~/Project23$ kubectl get configmap
+NAME                 DATA   AGE
+kube-root-ca.crt     1      5h50m
+website-index-file   1      9m16s
+hector@hector-Laptop:~/Project23$
+
+hector@hector-Laptop:~/Project23$ kubectl get configmap
+NAME                 DATA   AGE
+kube-root-ca.crt     1      5h50m
+website-index-file   1      9m16s
+hector@hector-Laptop:~/Project23$ kubectl edit cm website-index-file
+configmap/website-index-file edited
+``` 
+
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/configmap.png) 
+
+
+``` bash
+hector@hector-Laptop:~/Project23$ kubectl get service
+NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
+kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h54m
+nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   32m
+hector@hector-Laptop:~/Project23$
+```
+
+![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/usingconfigmap.png)  
+
