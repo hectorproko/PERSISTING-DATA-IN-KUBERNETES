@@ -2,7 +2,7 @@
 PROJECT 23
 
 ### PERSISTING DATA IN KUBERNETES
-
+<!--
 Could be a reusable file
 Redoing Using EKS
 Starting from Kubernetes on AWS (EKS)
@@ -62,6 +62,8 @@ hector@hector-Laptop:~$ aws eks update-kubeconfig --profile kube --region us-eas
 Added new context arn:aws:eks:us-east-1:199055125796:cluster/Project23 to /home/hector/.kube/config
 hector@hector-Laptop:~$
 ```
+-->
+
 
 ``` bash
 hector@hector-Laptop:~$ kubectl cluster-info
