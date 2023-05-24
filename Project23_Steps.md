@@ -63,8 +63,9 @@ Added new context arn:aws:eks:us-east-1:199055125796:cluster/Project23 to /home/
 hector@hector-Laptop:~$
 ```
 -->
+First we need to set up [Kubernetes on AWS (EKS)](https://github.com/hectorproko/DEPLOYING-APPLICATIONS-INTO-KUBERNETES-CLUSTER/blob/main/Project22_Steps.md#kubernetes-on-aws-eks), we will follow the same steps as described in [Project 22](https://github.com/hectorproko/DEPLOYING-APPLICATIONS-INTO-KUBERNETES-CLUSTER/blob/main/Project22_Steps.md)  
 
-
+To confirm that the Kubernetes cluster is up and running  
 ``` bash
 hector@hector-Laptop:~$ kubectl cluster-info
 Kubernetes control plane is running at https://D236EDB340398719073CDF558090376C.gr7.us-east-1.eks.amazonaws.com
