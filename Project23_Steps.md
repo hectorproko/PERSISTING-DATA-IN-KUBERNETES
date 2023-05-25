@@ -219,7 +219,7 @@ nginx-deployment-6fdcffd8fc-zxk9p   1/1     Running   0          18m   192.168.1
 ```
 
 <details close>
-<summary>Using describe to get information from nodes</summary>
+<summary><b>Using describe to get information from nodes</b></summary>
 
 ```css
 hector@hector-Laptop:~/Project23$ kubectl describe nodes ip-192-168-138-68.ec2.internal
@@ -456,7 +456,7 @@ nginx-deployment-5844d76665-gq748   1/1     Running   0          7s
 So we checked the node the running pod its in and confirmed it was on east-a availability zone as the EBS we created  
 
 <details close>
-<summary>Getting more information from pod and deployment using describe</summary>
+<summary><b>Getting more information from pod and deployment using describe</b></summary>
 
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
@@ -656,7 +656,7 @@ parameters:
 
 
 <details close>
-<summary>Lifecycle of a PV and PVC</summary>
+<summary><b>Lifecycle of a PV and PVC</b></summary>
 
 PVs are resources in the cluster. PVCs are requests for those resources and also act as claim checks to the resource. The interaction between PVs and PVCs follows this lifecycle:  
 
