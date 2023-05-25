@@ -84,10 +84,12 @@ Before you create a volume, lets run the nginx deployment into kubernetes withou
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods
 No resources found in default namespace.
-
+```
+```
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment created
-
+```
+```
 hector@hector-Laptop:~/Project23$ cat nginx-pod.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -110,7 +112,8 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80
-
+```
+```
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-6fdcffd8fc-j2jtt   1/1     Running   0          22s
@@ -148,12 +151,6 @@ Open the config files to see the default configuration.
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-6fdcffd8fc-j2jtt -- bash
-
-root@nginx-deployment-6fdcffd8fc-j2jtt:/# cat /etc/nginx/conf.d
-cat: /etc/nginx/conf.d: Is a directory
-
-root@nginx-deployment-6fdcffd8fc-j2jtt:/# ls /etc/nginx/conf.d
-default.conf
 
 root@nginx-deployment-6fdcffd8fc-j2jtt:/# cat /etc/nginx/conf.d/default.conf
 server {
@@ -204,7 +201,10 @@ server {
 root@nginx-deployment-6fdcffd8fc-j2jtt:/#
 ```
 
- **Create Volume** first we have to check the AZ of the worker node where the pod is running
+ **Create Volume** first we have to check the AZ (Availability Zone) of the worker node where the pod is running
+
+
+Below we see the internal IP of the nodes ip-`192-168-138-68`.ec2.internal and ip-`192-168-229-214`.ec2.internal
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods -o wide
@@ -212,7 +212,9 @@ NAME                                READY   STATUS    RESTARTS   AGE   IP       
 nginx-deployment-6fdcffd8fc-j2jtt   1/1     Running   0          18m   192.168.154.43   ip-192-168-138-68.ec2.internal    <none>           <none>
 nginx-deployment-6fdcffd8fc-l75gk   1/1     Running   0          18m   192.168.246.1    ip-192-168-229-214.ec2.internal   <none>           <none>
 nginx-deployment-6fdcffd8fc-zxk9p   1/1     Running   0          18m   192.168.190.59   ip-192-168-138-68.ec2.internal    <none>           <none>
+```
 
+```css
 hector@hector-Laptop:~/Project23$ kubectl describe nodes ip-192-168-138-68.ec2.internal
 Name:               ip-192-168-138-68.ec2.internal
 Roles:              <none>
@@ -297,7 +299,8 @@ Allocated resources:
   hugepages-2Mi               0 (0%)     0 (0%)
   attachable-volumes-aws-ebs  0          0
 Events:                       <none>
-
+```
+```
 hector@hector-Laptop:~/Project23$ kubectl describe nodes ip-192-168-229-214.ec2.internal
 
 Name:               ip-192-168-229-214.ec2.internal
@@ -384,7 +387,6 @@ Allocated resources:
   hugepages-2Mi               0 (0%)      0 (0%)
   attachable-volumes-aws-ebs  0           0
 Events:                       <none>
-hector@hector-Laptop:~/Project23$
 ``` 
 
 So we have **3 PODS** running on **2 NODES** with 2 AZ  
@@ -424,10 +426,12 @@ spec:
         awsElasticBlockStore:
           volumeID: "vol-0b62e3d1f63ef4698"
           fsType: ext4
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment configured
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5844d76665-gq748   1/1     Running   0          7s
@@ -443,7 +447,8 @@ Go ahead and explore the running pod. Run `describe` on both the **pod** and **d
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5844d76665-gq748   1/1     Running   0          19m
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl describe pod nginx-deployment-5844d76665-gq748
 Name:         nginx-deployment-5844d76665-gq748
 Namespace:    default
@@ -504,11 +509,13 @@ Events:
   Normal  Created                 19m   kubelet                  Created container nginx
   Normal  Started                 19m   kubelet                  Started container nginx
   Normal  SuccessfulAttachVolume  19m   attachdetach-controller  AttachVolume.Attach succeeded for volume "nginx-volume"
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get deployment
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   1/1     1            1           123m
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl describe deployment nginx-deployment
 Name:                   nginx-deployment
 Namespace:              default
@@ -586,6 +593,8 @@ spec:
         awsElasticBlockStore:
           volumeID: "  vol-07b537651bbe68be0"
           fsType: ext4
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment configured
 ```
@@ -605,12 +614,15 @@ Create a manifest file for a PVC
 hector@hector-Laptop:~$ kubectl get storageclass
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  21m
-
+```
+```css
 hector@hector-Laptop:~$ nano nginx-volume-claim.yml
-
+```
+```css
 hector@hector-Laptop:~$ kubectl apply -f nginx-volume-claim.yml
 persistentvolumeclaim/nginx-volume-claim created
-
+```
+```css
 hector@hector-Laptop:~$ kubectl get pvc
 NAME                 STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   AGE
 nginx-volume-claim   Pending                                      gp2            23s
@@ -644,8 +656,8 @@ hector@hector-Laptop:~/Project23$
 hector@hector-Laptop:~/Project23$ kubectl get deployments
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   1/1     1            1           29m
-
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
@@ -686,10 +698,12 @@ spec:
       - name: nginx-volume-claim
         persistentVolumeClaim:
           claimName: nginx-volume-claim
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
 deployment.apps/nginx-deployment unchanged
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     11m
@@ -715,10 +729,12 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service created
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get svc
 NAME            TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
 kubernetes      ClusterIP      10.100.0.1      <none>                                                                    443/TCP        4h47m
@@ -736,18 +752,22 @@ hector@hector-Laptop:~/Project23$ lynx a69047daa62674e7392375d178cb0a9b-17876592
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-64bfb7c874-2jrkh   1/1     Running   0          70s
-hector@hector-Laptop:~/Project23$
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service created
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get svc
 NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
 kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h22m
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   16s
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service unchanged
-
+```
+```css
 hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com
 ```
 
@@ -764,34 +784,35 @@ Lets go through the below process so that you can see an example of a `configMap
 1. Remove the **volumeMounts** and **PVC** sections of the manifest and use kubectl to apply the configuration
 
 ``` bash
-		hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
-		apiVersion: apps/v1
-		kind: Deployment
-		metadata:
-		  name: nginx-deployment
-		  labels:
-		    tier: frontend
-		spec:
-		  replicas: 1
-		  selector:
-		    matchLabels:
-		      tier: frontend
-		  template:
-		    metadata:
-		      labels:
-		        tier: frontend
-		    spec:
-		      containers:
-		      - name: nginx
-		        image: nginx:latest
-		        ports:
-		        - containerPort: 80
-		      volumes:
-		      - name: nginx-volume-claim
-		        persistentVolumeClaim:
-		          claimName: nginx-volume-claim
-		
-		hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
+hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+      volumes:
+      - name: nginx-volume-claim
+        persistentVolumeClaim:
+          claimName: nginx-volume-claim
+```
+```css
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
 deployment.apps/nginx-deployment configured
 ```
 
@@ -799,12 +820,11 @@ deployment.apps/nginx-deployment configured
 2. port forward the service and ensure that you are able to see the "Welcome to nginx" page
 
 ``` bash
-	hector@hector-Laptop:~/Project23$ kubectl get service
-	NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
-	kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h31m
-	nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   8m50s
-	hector@hector-Laptop:~/Project23$
-
+hector@hector-Laptop:~/Project23$ kubectl get service
+NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
+kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h31m
+nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   8m50s
+hector@hector-Laptop:~/Project23$
 ```
 
 
@@ -816,7 +836,8 @@ deployment.apps/nginx-deployment configured
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5b98d885c7-xdn7h   1/1     Running   0          4m43s
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-5b98d885c7-xdn7h -- bash
 root@nginx-deployment-5b98d885c7-xdn7h:/# cat /usr/share/nginx/html/index.html
 <!DOCTYPE html>
@@ -879,7 +900,8 @@ data:
     <p><em>Thank you for using nginx.</em></p>
     </body>
     </html>
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-configmap.yaml
 configmap/website-index-file created
 ```
@@ -890,10 +912,12 @@ Update the deployment file to use the configmap in the volumeMounts section
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod
 nginx-pod-with-cm.yaml  nginx-pod.yaml          nginx-pod.yamlBAK
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod-with-cm.yaml
 deployment.apps/nginx-deployment created
-
+```
+```css
 hector@hector-Laptop:~/Project23$ cat nginx-pod-with-cm.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -934,24 +958,28 @@ hector@hector-Laptop:~/Project23$
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-7dcdfbd66f-m527b   1/1     Running   0          2m3s
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-7dcdfbd66f-m527b -- bash
 root@nginx-deployment-7dcdfbd66f-m527b:/# ls -ltr  /usr/share/nginx/html
 total 0
 lrwxrwxrwx 1 root root 17 Aug 11 21:29 index.html -> ..data/index.html
 root@nginx-deployment-7dcdfbd66f-m527b:/#
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get configmap
 NAME                 DATA   AGE
 kube-root-ca.crt     1      5h50m
 website-index-file   1      9m16s
 hector@hector-Laptop:~/Project23$
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl get configmap
 NAME                 DATA   AGE
 kube-root-ca.crt     1      5h50m
 website-index-file   1      9m16s
-
+```
+```css
 hector@hector-Laptop:~/Project23$ kubectl edit cm website-index-file
 configmap/website-index-file edited
 ``` 
