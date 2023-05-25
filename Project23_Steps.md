@@ -1,7 +1,6 @@
 # PERSISTING-DATA-IN-KUBERNETES
 PROJECT 23
 
-### PERSISTING DATA IN KUBERNETES
 <!--
 Could be a reusable file
 Redoing Using EKS
@@ -75,11 +74,14 @@ To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 hector@hector-Laptop:~$
 ```
 
+
+### PERSISTING DATA IN KUBERNETES
+
 Environment Ready To Follow Steps  
 
-Lets see what it looks like for our Nginx pod to persist data using `awsElasticBlockStore` volume  
 
-Before you create a volume, lets run the nginx deployment into kubernetes without a volume.  
+
+Before you create a volume, lets run the nginx deployment into kubernetes without a volume. This gives us an opportunity to check config files and the nodes running the pods.
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods
@@ -113,6 +115,8 @@ spec:
         ports:
         - containerPort: 80
 ```
+
+Verify that the pod is running  
 ```
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
@@ -121,9 +125,7 @@ nginx-deployment-6fdcffd8fc-l75gk   1/1     Running   0          22s
 nginx-deployment-6fdcffd8fc-zxk9p   1/1     Running   0          22s
 ```
 
-Tasks  
-	• Verify that the pod is running  
-	• Check the logs of the pod  
+Check the logs of the pod  
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl logs nginx-deployment-6fdcffd8fc-j2jtt
@@ -145,8 +147,9 @@ hector@hector-Laptop:~/Project23$ kubectl logs nginx-deployment-6fdcffd8fc-j2jtt
 2022/08/11 17:36:08 [notice] 1#1: start worker process 32
 ```
 
-Exec into the pod and navigate to the nginx configuration file `/etc/nginx/conf.d`  
+Exec into the pod and navigate to the nginx configuration file `/etc/nginx/conf.d/default.conf`  
 Open the config files to see the default configuration.  
+Information we need may include the path the "document root" (`/usr/share/nginx/html`) this is the directory that nginx inspects in order to serve files for incoming client requests. We will use later as a mount point
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-6fdcffd8fc-j2jtt -- bash
@@ -200,7 +203,9 @@ server {
 root@nginx-deployment-6fdcffd8fc-j2jtt:/#
 ```
 
- **Create Volume** first we have to check the AZ (Availability Zone) of the worker node where the pod is running
+ Before we **Create Volume** first we have to check the AZ (Availability Zone) of the worker node where the pod is running. Those instances need to be in the same region and availability zone as the EBS volume
+
+Note: EBS only supports a single EC2 instance mounting a volume
 
 
 Below we see the internal IP of the nodes ip-`192-168-138-68`.ec2.internal and ip-`192-168-229-214`.ec2.internal
@@ -212,6 +217,9 @@ nginx-deployment-6fdcffd8fc-j2jtt   1/1     Running   0          18m   192.168.1
 nginx-deployment-6fdcffd8fc-l75gk   1/1     Running   0          18m   192.168.246.1    ip-192-168-229-214.ec2.internal   <none>           <none>
 nginx-deployment-6fdcffd8fc-zxk9p   1/1     Running   0          18m   192.168.190.59   ip-192-168-138-68.ec2.internal    <none>           <none>
 ```
+
+<details close>
+<summary>Using describe to get information from nodes</summary>
 
 ```css
 hector@hector-Laptop:~/Project23$ kubectl describe nodes ip-192-168-138-68.ec2.internal
@@ -387,6 +395,8 @@ Allocated resources:
   attachable-volumes-aws-ebs  0           0
 Events:                       <none>
 ``` 
+</details>
+
 
 So we have **3 PODS** running on **2 NODES** with 2 AZ  
 `zone=us-east-1a`  
@@ -395,6 +405,8 @@ So we have **3 PODS** running on **2 NODES** with 2 AZ
 Picked  `zone=us-east-1a`
 
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/createvolume.png)   
+
+Lets see what it looks like for our Nginx pod to persist data using `awsElasticBlockStore` volume. Notice we copied the Volume ID from the EBS we just created
 
 ``` bash
 hector@hector-Laptop:~/Project23$ cat nginx-pod.yaml
