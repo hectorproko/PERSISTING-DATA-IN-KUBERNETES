@@ -635,21 +635,37 @@ In summary, PVs are the actual storage resources in the cluster, while PVCs are 
 In order for a cluster to dynamically create Persistent Volumes (PVs), which are then used by Pods for persistent storage, we need to have a StorageClass defined. The StorageClass specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS EBS. 
 
 StorageClass is a Kubernetes resource that you can define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
+Example:  
+```css
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: gp2
+  annotations:
+  storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+  fsType: ext4 
+```
+*If the cluster is based on Google’s **GKE** or Azure’s **AKS**, then the storage class will be different.*  
 
 
 
-By default, in EKS, there is a default **storageClass** configured as part of EKS installation.  
 
-Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
-Approach 1  
-`
-Create a manifest file for a PVC  
+
+In Amazon Elastic Kubernetes Service (EKS), the default StorageClass that is configured as part of the EKS installation is called gp2. The gp2 StorageClass is based on Amazon Elastic Block Store (EBS).
 
 ``` bash
 hector@hector-Laptop:~$ kubectl get storageclass
 NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  21m
 ```
+
+Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
+Approach 1  
+
+Create a manifest file for a PVC  
 ```css
 hector@hector-Laptop:~$ nano nginx-volume-claim.yml
 ```
