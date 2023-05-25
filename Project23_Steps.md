@@ -625,6 +625,15 @@ deployment.apps/nginx-deployment configured
 ### MANAGING VOLUMES DYNAMICALLY WITH PVs AND PVCs
 
 <details close>
+<summary>Multiple-Output</summary>
+
+``` bash
+hector@hector-Laptop:~/Project22$ kubectl get deployment
+hector@hector-Laptop:~/Project22$
+```
+</details>
+
+<details close>
 <summary>Notes</summary>
 
 Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all you have to do is present manifest files that describes what you want to get done.
