@@ -622,7 +622,21 @@ deployment.apps/nginx-deployment configured
 
 
 
-### PMANAGING VOLUMES DYNAMICALLY WITH PVS AND PVCS
+### MANAGING VOLUMES DYNAMICALLY WITH PVs AND PVCs
+
+Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all you have to do is present manifest files that describes what you want to get done.
+
+PersistentVolumes (**PV**s) are volume plugins, they are responsible for interacting with the underlying storage systems and providing the necessary functionality to manage and access volumes. PVs act as an abstraction layer between the Kubernetes cluster and the actual storage infrastructure. The concept of PV plugins allows Kubernetes to support various storage providers and technologies without tightly coupling the core platform to specific storage implementations. 
+
+Persistent Volume Claims (PVCs) in Kubernetes serve as a means for Pods to request storage resources from Persistent Volumes (PVs). A PVC acts as a user's request for a specific amount of storage with specific access modes, indicating how the storage can be used (e.g., ReadWriteOnce, ReadOnlyMany, ReadWriteMany). Users can create PVCs manually or Kubernetes can create them automatically based on Pod specifications. When a PVC is created, it searches for available PVs that match the requested storage requirements, and upon a successful match, the PVC is bound to the PV. By using PVCs, Pods can dynamically claim the required storage resources from the available pool of PVs, ensuring that the desired storage capacity and access modes are met for the application's persistent data needs.
+
+In summary, PVs are the actual storage resources in the cluster, while PVCs are the requests made by Pods to use those storage resources. PVCs provide a way to dynamically provision and consume storage in a Kubernetes cluster, while PVs provide the underlying storage infrastructure.  
+
+In order for a cluster to dynamically create Persistent Volumes (PVs), which are then used by Pods for persistent storage, we need to have a StorageClass defined. The StorageClass specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS EBS. 
+
+StorageClass is a Kubernetes resource that you can define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
+
+
 
 By default, in EKS, there is a default **storageClass** configured as part of EKS installation.  
 
