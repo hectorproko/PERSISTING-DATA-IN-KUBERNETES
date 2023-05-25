@@ -119,7 +119,6 @@ NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-6fdcffd8fc-j2jtt   1/1     Running   0          22s
 nginx-deployment-6fdcffd8fc-l75gk   1/1     Running   0          22s
 nginx-deployment-6fdcffd8fc-zxk9p   1/1     Running   0          22s
-hector@hector-Laptop:~/Project23$
 ```
 
 Tasks  
@@ -556,7 +555,6 @@ Events:
   Normal  ScalingReplicaSet  20m   deployment-controller  Scaled down replica set nginx-deployment-6fdcffd8fc to 1
   Normal  ScalingReplicaSet  20m   deployment-controller  Scaled up replica set nginx-deployment-5844d76665 to 1
   Normal  ScalingReplicaSet  20m   deployment-controller  Scaled down replica set nginx-deployment-6fdcffd8fc to 0
-hector@hector-Laptop:~/Project23$
 ```
 
 To complete the configuration, we will need to add another section to the deployment yaml manifest. The **volumeMounts** which basically answers the question "Where should this Volume be mounted inside the container?" Mounting a volume to a directory means that all data written to the directory will be stored on that volume.
@@ -649,7 +647,6 @@ Events:
   Type    Reason                Age                   From                         Message
   ----    ------                ----                  ----                         -------
   Normal  WaitForFirstConsumer  99s (x26 over 7m52s)  persistentvolume-controller  waiting for first consumer to be created before binding
-hector@hector-Laptop:~/Project23$
 ```
 
 ``` bash
@@ -661,7 +658,6 @@ nginx-deployment   1/1     1            1           29m
 hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
-hector@hector-Laptop:~/Project23$
 ```
 
 To proceed, simply apply the new deployment configuration below.
@@ -707,7 +703,6 @@ deployment.apps/nginx-deployment unchanged
 hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     11m
-hector@hector-Laptop:~/Project23$
 ``` 
 
 EC2 > Elastic Block Store > Volumes  
@@ -739,7 +734,6 @@ hector@hector-Laptop:~/Project23$ kubectl get svc
 NAME            TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
 kubernetes      ClusterIP      10.100.0.1      <none>                                                                    443/TCP        4h47m
 nginx-service   LoadBalancer   10.100.54.132   a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   80:31491/TCP   14s
-hector@hector-Laptop:~/Project23$
 ```
 
 ``` bash
@@ -824,7 +818,6 @@ hector@hector-Laptop:~/Project23$ kubectl get service
 NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
 kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h31m
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   8m50s
-hector@hector-Laptop:~/Project23$
 ```
 
 
@@ -951,7 +944,6 @@ spec:
           items:
           - key: index-file
             path: index.html
-hector@hector-Laptop:~/Project23$
 ```
 
 ``` bash
@@ -971,7 +963,6 @@ hector@hector-Laptop:~/Project23$ kubectl get configmap
 NAME                 DATA   AGE
 kube-root-ca.crt     1      5h50m
 website-index-file   1      9m16s
-hector@hector-Laptop:~/Project23$
 ```
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get configmap
@@ -992,7 +983,6 @@ hector@hector-Laptop:~/Project23$ kubectl get service
 NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
 kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h54m
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   32m
-hector@hector-Laptop:~/Project23$
 ```
 
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/usingconfigmap.png)  
