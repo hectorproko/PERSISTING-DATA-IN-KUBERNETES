@@ -624,6 +624,9 @@ deployment.apps/nginx-deployment configured
 
 ### MANAGING VOLUMES DYNAMICALLY WITH PVs AND PVCs
 
+<details close>
+<summary>Notes</summary>
+
 Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all you have to do is present manifest files that describes what you want to get done.
 
 PersistentVolumes (**PV**s) are volume plugins, they are responsible for interacting with the underlying storage systems and providing the necessary functionality to manage and access volumes. PVs act as an abstraction layer between the Kubernetes cluster and the actual storage infrastructure. The concept of PV plugins allows Kubernetes to support various storage providers and technologies without tightly coupling the core platform to specific storage implementations. 
@@ -649,6 +652,10 @@ parameters:
   fsType: ext4 
 ```
 *If the cluster is based on Google’s **GKE** or Azure’s **AKS**, then the storage class will be different.*  
+</details>
+
+
+
 
 
 
