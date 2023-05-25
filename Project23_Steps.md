@@ -398,17 +398,20 @@ Events:                       <none>
 </details>
 
 
-So we have **3 PODS** running on **2 NODES** with 2 AZ  
-`zone=us-east-1a`  
-`zone=us-east-1b`  
+Based on the describe output above our **3 PODS** are running on **2 NODES** with 2 AZ  `zone=us-east-1a` and `zone=us-east-1b`  
 
-Picked  `zone=us-east-1a`
+I'll choose  `zone=us-east-1a` to create a volume in AWS
+
+1. In your AWS console, head over to the EC2 section and scroll down to the **Elastic Block Storage** menu.
+2. Click on Volumes
+3. At the top right, click on **Create Volume**  
 
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/createvolume.png)   
 
-Lets see what it looks like for our Nginx pod to persist data using `awsElasticBlockStore` volume. Notice we copied the Volume ID from the EBS we just created
+Lets see what `nginx-pod.yaml` looks like for our Nginx pod to persist data using **awsElasticBlockStore** volume. 
 
-``` bash
+Notice the **volumeID** entry contains the value of an **EBS ID** *(the one we just created)*  dddd
+```css
 hector@hector-Laptop:~/Project23$ cat nginx-pod.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -442,19 +445,20 @@ spec:
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment configured
 ```
+
+To keep it simple will keep the replicateSet to 1
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5844d76665-gq748   1/1     Running   0          7s
 ```
 
-So we checked the running pod, we described the NODE it was running on, and the node was on east-a, the one we picked, seem like before
+So we checked the node the running pod its in and confirmed it was on east-a availability zone as the EBS we created  
 
+<details close>
+<summary>Getting more information from pod and deployment using describe</summary>
 
-
-Go ahead and explore the running pod. Run `describe` on both the **pod** and **deployment**
-
-``` bash
+```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5844d76665-gq748   1/1     Running   0          19m
@@ -568,10 +572,15 @@ Events:
   Normal  ScalingReplicaSet  20m   deployment-controller  Scaled up replica set nginx-deployment-5844d76665 to 1
   Normal  ScalingReplicaSet  20m   deployment-controller  Scaled down replica set nginx-deployment-6fdcffd8fc to 0
 ```
+</details>  
+
+
+At this point, even though the pod can be used for a stateful application, the configuration is not yet complete. This is because, the volume is not yet mounted onto any specific filesystem inside the container. The directory /usr/share/nginx/html which holds the software/website code is still ephemeral, and if there is any kind of update to the index.html file, the new changes will only be there for as long as the pod is still running. If the pod dies after, all previously written data will be erased.
+
 
 To complete the configuration, we will need to add another section to the deployment yaml manifest. The **volumeMounts** which basically answers the question "Where should this Volume be mounted inside the container?" Mounting a volume to a directory means that all data written to the directory will be stored on that volume.
 
-``` bash
+```css
 hector@hector-Laptop:~/Project23$ cat nginx-pod.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -604,6 +613,8 @@ spec:
           volumeID: "  vol-07b537651bbe68be0"
           fsType: ext4
 ```
+
+We apply the new configuration the old pod will be terminated while the updated one will be up and running.
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment configured
@@ -617,7 +628,7 @@ By default, in EKS, there is a default **storageClass** configured as part of EK
 
 Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
 Approach 1  
-
+`
 Create a manifest file for a PVC  
 
 ``` bash
