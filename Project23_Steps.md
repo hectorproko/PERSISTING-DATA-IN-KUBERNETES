@@ -625,7 +625,7 @@ deployment.apps/nginx-deployment configured
 ### MANAGING VOLUMES DYNAMICALLY WITH PVs AND PVCs
 
 <details close>
-<summary><b>Notes</b></summary>
+<summary><b>Notes:</b></summary>
 
 Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all you have to do is present manifest files that describes what you want to get done.
 
@@ -656,7 +656,7 @@ parameters:
 
 
 <details close>
-<summary><b>Lifecycle of a PV and PVC</b></summary>
+<summary><b>Notes: Lifecycle of a PV and PVC</b></summary>
 
 PVs are resources in the cluster. PVCs are requests for those resources and also act as claim checks to the resource. The interaction between PVs and PVCs follows this lifecycle:  
 
@@ -680,9 +680,6 @@ Learn more about the different types of persistent volumes here
 </details>
 
 
-
-
-
 In Amazon Elastic Kubernetes Service (EKS), the default StorageClass that is configured as part of the EKS installation is called gp2. The gp2 StorageClass is based on Amazon Elastic Block Store (EBS).
 
 ``` bash
@@ -692,7 +689,7 @@ gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   f
 ```
 
 Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
-Approach 1  
+**Approach 1  **
 
 Create a manifest file for a PVC  
 ```css
@@ -711,6 +708,7 @@ hector@hector-Laptop:~$
 
 Moved the manifest to **Project23** folder
 
+To troubleshoot this, simply run a describe on the pvc. Then you will see in the Message section that this pvc is waiting for the first consumer to be created before binding the PV to a PV
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl describe pvc nginx-volume-claim
 Name:          nginx-volume-claim
