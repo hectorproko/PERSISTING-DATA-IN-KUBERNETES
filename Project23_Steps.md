@@ -689,26 +689,56 @@ gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   f
 ```
 
 Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
-**Approach 1  **
+**Approach 1**
 
 Create a manifest file for a PVC  
+
+
+``` bash
+hector@hector-Laptop:~/Project22$ kubectl get deployment
+hector@hector-Laptop:~/Project22$
+```
+
 ```css
 hector@hector-Laptop:~$ nano nginx-volume-claim.yml
 ```
+<!--had to re-generate-->
+<details close>
+<summary><b>nginx-volume-claim.yml</b></summary></b>   
+
+```css
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-volume-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  storageClassName: gp2
+```
+</details>
+
+This will create the PVC with the name nginx-volume-claim.  
 ```css
 hector@hector-Laptop:~$ kubectl apply -f nginx-volume-claim.yml
 persistentvolumeclaim/nginx-volume-claim created
 ```
+
+The STATUS will show as Pending initially.   
 ```css
 hector@hector-Laptop:~$ kubectl get pvc
 NAME                 STATUS    VOLUME   CAPACITY   ACCESS MODES   STORAGECLASS   AGE
 nginx-volume-claim   Pending                                      gp2            23s
 hector@hector-Laptop:~$
 ```
+<!--Moved the manifest to **Project23** folder, (dont remember what this is for)-->
 
-Moved the manifest to **Project23** folder
 
-To troubleshoot this, simply run a describe on the pvc. Then you will see in the Message section that this pvc is waiting for the first consumer to be created before binding the PV to a PV
+If the status is **Pending**, it means that the PVC is waiting to be bound to a PersistentVolume (PV). To troubleshoot this, run a describe command on the PVC to get more information about its status.  
+*Look for the **Message** section in the output. In this case, you will see a message stating that the PVC is waiting for the first consumer to be created before binding.*
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl describe pvc nginx-volume-claim
 Name:          nginx-volume-claim
@@ -728,6 +758,21 @@ Events:
   ----    ------                ----                  ----                         -------
   Normal  WaitForFirstConsumer  99s (x26 over 7m52s)  persistentvolume-controller  waiting for first consumer to be created before binding
 ```
+The *waiting for first consumer to be created before binding* is a configuration setting from the storageClass `VolumeBindingMode`.  
+
+
+
+
+
+If we run `kubectl get pv` we see that no PV is created yet.
+```css
+hector@hector-Laptop:~/Project23$ kubectl get pv
+No resources found
+```
+
+
+
+
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get deployments
