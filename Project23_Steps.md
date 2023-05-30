@@ -861,7 +861,8 @@ pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete     
 EC2 > Elastic Block Store > Volumes  
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/createvolume2.png)  
 
-Copied the service .yaml from Project 22  
+
+I used the same service configuration file (`nginx-service.yaml`) from [Project 22](https://github.com/hectorproko/DEPLOYING-APPLICATIONS-INTO-KUBERNETES-CLUSTER/blob/main/Project22_Steps.md) to define the Nginx service. Here's the content of the configuration file:
 
 ``` bash
 hector@hector-Laptop:~/Project23$ cat nginx-service.yaml
@@ -878,6 +879,7 @@ spec:
       port: 80
       targetPort: 80
 ```
+
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service created
