@@ -880,10 +880,13 @@ spec:
       targetPort: 80
 ```
 
+Creating the Nginx service based on the provided configuration file  
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service created
 ```
+
+Verifing the creation of the service  
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get svc
 NAME            TYPE           CLUSTER-IP      EXTERNAL-IP                                                               PORT(S)        AGE
@@ -891,10 +894,11 @@ kubernetes      ClusterIP      10.100.0.1      <none>                           
 nginx-service   LoadBalancer   10.100.54.132   a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   80:31491/TCP   14s
 ```
 
+Accessing the Nginx service using the provided external IP. We can use a web browser or a command-line tool like Lynx to access the service.  
 ``` bash
 hector@hector-Laptop:~/Project23$ lynx a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   
 ```
-
+Example using **lynx**  
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx.png)  
 
 ``` bash
