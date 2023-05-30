@@ -901,11 +901,17 @@ hector@hector-Laptop:~/Project23$ lynx a69047daa62674e7392375d178cb0a9b-17876592
 Here is the output obtained when using the **lynx** command:
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx.png)  
 
+
+
+<!--
+I think this was part of troubleshooting an issue i had but not intended as a product to show
+
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-64bfb7c874-2jrkh   1/1     Running   0          70s
 ```
+
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service created
@@ -929,6 +935,7 @@ hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-78503539
 
 
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/404notfound2.png)  
+-->
 
 
 ### PCONFIGMAP
