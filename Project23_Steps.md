@@ -898,7 +898,7 @@ Accessing the Nginx service using the provided external IP. We can use a web bro
 ``` bash
 hector@hector-Laptop:~/Project23$ lynx a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   
 ```
-Example using **lynx**  
+Here is the output obtained when using the **lynx** command:
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx.png)  
 
 ``` bash
