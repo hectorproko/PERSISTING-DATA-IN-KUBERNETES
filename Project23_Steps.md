@@ -796,7 +796,7 @@ No resources found
 
 the issue si because of no pods running that are using the PVC
 not due to missing pv, thats another error, that will eventually appear if
-we do not have pv
+we do not have pv and fix "waiting for first consumer to be created before binding" which is what tells that we need a pod
 -->
 
 After provisioning the missing nodes, the Deployment should become ready:  
@@ -813,9 +813,7 @@ NAME                                       CAPACITY   ACCESS MODES   RECLAIM POL
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
 ```
 
-To proceed, simply apply the new deployment configuration below.
-
-2. Then configure the Pod spec to use the PVC
+The next step is to apply the deployment configuration to create the Nginx deployment to configure the Pod spec to use the PVC  
 
 ``` bash
 hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
@@ -848,6 +846,8 @@ spec:
         persistentVolumeClaim:
           claimName: nginx-volume-claim
 ```
+*The configuration also includes the specification for mounting the persistent volume claim (**nginx-volume-claim**) to the pod's container at the path `/tmp/dare`. This allows the pod to access and utilize the persistent storage provided by the PVC.*  
+
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
 deployment.apps/nginx-deployment unchanged
