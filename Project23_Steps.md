@@ -761,17 +761,44 @@ Events:
 The *waiting for first consumer to be created before binding* is a configuration setting from the storageClass `VolumeBindingMode`.  
 
 
+The issue in this case was no nodes
+
+Check the Deployment status:
+hector@hector-Laptop:~/Project23$ kubectl get deployments
+NAME               READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment   0/1     1            0           6m28s
+If the desired number of Pods is not ready or available, it indicates an issue with Pod creation.
+
+Verify the Pod status:
+The pods wasn’t coming up
+hector@hector-Laptop:~/Project23$ kubectl get pods
+NAME                                READY   STATUS    RESTARTS   AGE
+nginx-deployment-7676f8b4d9-m5v2t   0/1     Pending   0          4m58s
+If the Pods are in a pending state or not running, it suggests a problem with Pod scheduling.
+
+Describe the Pod to identify the specific issue:
+Look for events or messages that provide information about the problem.
+Then we find the issue, no available nodes in the cluster to schedule the Pods.
+hector@hector-Laptop:~/Project23$ kubectl describe nginx-deployment-7676f8b4d9-m5v2t
+	Events:
+	  Type     Reason            Age                  From               Message
+	  ----     ------            ----                 ----               -------
+	  Warning  FailedScheduling  55s (x5 over 5m23s)  default-scheduler  no nodes available to schedule pods
 
 
+after gettign the nodes
 
+<!--
 If we run `kubectl get pv` we see that no PV is created yet.
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pv
 No resources found
 ```
 
-
-
+the issue si because of no pods running that are using the PVC
+not due to missing pv, thats another error, that will eventually appear if
+we do not have pv
+-->
 
 
 ``` bash
@@ -784,6 +811,15 @@ hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
 ```
+
+
+
+
+
+
+
+
+
 
 To proceed, simply apply the new deployment configuration below.
 
