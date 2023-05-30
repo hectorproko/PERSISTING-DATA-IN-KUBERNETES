@@ -693,12 +693,6 @@ Now lets create some persistence for our nginx deployment. We will use 2 differe
 
 Create a manifest file for a PVC  
 
-
-``` bash
-hector@hector-Laptop:~/Project22$ kubectl get deployment
-hector@hector-Laptop:~/Project22$
-```
-
 ```css
 hector@hector-Laptop:~$ nano nginx-volume-claim.yml
 ```
@@ -761,32 +755,37 @@ Events:
 The *waiting for first consumer to be created before binding* is a configuration setting from the storageClass `VolumeBindingMode`.  
 
 
-The issue in this case was no nodes
+The issue in this case was the unavailability of nodes in the cluster for scheduling Pods.  
 
-Check the Deployment status:
+Troubleshooted this issue following these steps:
+
+Checked the Deployment status:
+```css
 hector@hector-Laptop:~/Project23$ kubectl get deployments
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   0/1     1            0           6m28s
-If the desired number of Pods is not ready or available, it indicates an issue with Pod creation.
+```
+*The desired number of Pods was not ready, it indicates an issue with Pod creation.*
 
-Verify the Pod status:
-The pods wasn’t coming up
+Verify the status of the Pods:  
+```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-7676f8b4d9-m5v2t   0/1     Pending   0          4m58s
-If the Pods are in a pending state or not running, it suggests a problem with Pod scheduling.
+```
+*The Pods were in a pending state, it suggests a problem with Pod scheduling.*  
 
-Describe the Pod to identify the specific issue:
-Look for events or messages that provide information about the problem.
-Then we find the issue, no available nodes in the cluster to schedule the Pods.
+`Describe`d the Pod to identify the specific issue:
+```css
 hector@hector-Laptop:~/Project23$ kubectl describe nginx-deployment-7676f8b4d9-m5v2t
 	Events:
 	  Type     Reason            Age                  From               Message
 	  ----     ------            ----                 ----               -------
 	  Warning  FailedScheduling  55s (x5 over 5m23s)  default-scheduler  no nodes available to schedule pods
+```
+*Looked for events or messages that provide information about the problem. In this case, the issue was the unavailability of nodes in the cluster to schedule the Pods.*  
 
-
-after gettign the nodes
+Took the necessary steps to provision additional nodes.  
 
 <!--
 If we run `kubectl get pv` we see that no PV is created yet.
@@ -800,26 +799,19 @@ not due to missing pv, thats another error, that will eventually appear if
 we do not have pv
 -->
 
-
+After provisioning the missing nodes, the Deployment should become ready:  
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get deployments
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   1/1     1            1           29m
 ```
+
+The Persistent Volume (PV) is associated with the Persistent Volume Claim (PVC) for storage allocation:
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
 ```
-
-
-
-
-
-
-
-
-
 
 To proceed, simply apply the new deployment configuration below.
 
