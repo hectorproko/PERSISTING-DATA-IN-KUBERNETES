@@ -81,7 +81,7 @@ Environment Ready To Follow Steps
 
 
 
-Before you create a volume, lets run the nginx deployment into kubernetes without a volume. This gives us an opportunity to check config files and the nodes running the pods.
+Before  create a volume, lets run the nginx deployment into kubernetes without a volume. This gives us an opportunity to check config files and the nodes running the pods.
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods
@@ -402,7 +402,7 @@ Based on the describe output above our **3 PODS** are running on **2 NODES** wit
 
 I'll choose  `zone=us-east-1a` to create a volume in AWS
 
-1. In your AWS console, head over to the EC2 section and scroll down to the **Elastic Block Storage** menu.
+1. In r AWS console, head over to the EC2 section and scroll down to the **Elastic Block Storage** menu.
 2. Click on Volumes
 3. At the top right, click on **Create Volume**  
 
@@ -627,7 +627,7 @@ deployment.apps/nginx-deployment configured
 <details close>
 <summary><b>Notes:</b></summary>
 
-Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all you have to do is present manifest files that describes what you want to get done.
+Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all we have to do is present manifest files that describes what we want to get done.
 
 PersistentVolumes (**PV**s) are volume plugins, they are responsible for interacting with the underlying storage systems and providing the necessary functionality to manage and access volumes. PVs act as an abstraction layer between the Kubernetes cluster and the actual storage infrastructure. The concept of PV plugins allows Kubernetes to support various storage providers and technologies without tightly coupling the core platform to specific storage implementations. 
 
@@ -637,7 +637,7 @@ In summary, PVs are the actual storage resources in the cluster, while PVCs are 
 
 In order for a cluster to dynamically create Persistent Volumes (PVs), which are then used by Pods for persistent storage, we need to have a StorageClass defined. The StorageClass specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS EBS. 
 
-StorageClass is a Kubernetes resource that you can define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
+StorageClass is a Kubernetes resource that we define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
 Example:  
 ```css
 kind: StorageClass
@@ -688,7 +688,8 @@ NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      A
 gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  21m
 ```
 
-Now lets create some persistence for our nginx deployment. We will use 2 different approaches.  
+Now lets create some persistence for our nginx deployment. We will use **one** of **two** approaches.
+
 **Approach 1**
 
 Create a manifest file for a PVC  
@@ -732,7 +733,7 @@ hector@hector-Laptop:~$
 
 
 If the status is **Pending**, it means that the PVC is waiting to be bound to a PersistentVolume (PV). To troubleshoot this, run a describe command on the PVC to get more information about its status.  
-*Look for the **Message** section in the output. In this case, you will see a message stating that the PVC is waiting for the first consumer to be created before binding.*
+*Look for the **Message** section in the output. In this case, we will see a message stating that the PVC is waiting for the first consumer to be created before binding.*
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl describe pvc nginx-volume-claim
 Name:          nginx-volume-claim
@@ -940,10 +941,15 @@ hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-78503539
 
 ### PCONFIGMAP
 
-Lets go through the below process so that you can see an example of a `configMap` use case.
+Using configMaps for persistence is not something to consider for data storage. Rather it is a way to manage configuration files and ensure they are not lost as a result of Pod replacement. To demonstrate this, we will use the HTML file that came with Nginx. This file can be found in `/usr/share/nginx/html/index.html`  directory.  
+
+
+
+
+Lets go through the below process so that we can see an example of a `configMap` use case.
 1. Remove the **volumeMounts** and **PVC** sections of the manifest and use kubectl to apply the configuration
 
-``` bash
+```css
 hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
 apiVersion: apps/v1
 kind: Deployment
@@ -966,18 +972,16 @@ spec:
         image: nginx:latest
         ports:
         - containerPort: 80
-      volumes:
-      - name: nginx-volume-claim
-        persistentVolumeClaim:
-          claimName: nginx-volume-claim
 ```
+
+Applying the configuation
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
 deployment.apps/nginx-deployment configured
 ```
 
 
-2. port forward the service and ensure that you are able to see the "Welcome to nginx" page
+2. We get the cluster IP to confirm the nginx is working
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get service
@@ -986,16 +990,18 @@ kubernetes      ClusterIP      10.100.0.1       <none>                          
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   8m50s
 ```
 
-
+Using lynx to access the page we ensure that we are able to see the "Welcome to nginx" page
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx3.png) 
 
-1. exec into the running container and keep a copy of the **index.html** file somewhere. For example  
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5b98d885c7-xdn7h   1/1     Running   0          4m43s
 ```
+
+1. exec into the running container and copy the contents of **index.html**, we will need it to create a configmap.
+
 ```css
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-5b98d885c7-xdn7h -- bash
 root@nginx-deployment-5b98d885c7-xdn7h:/# cat /usr/share/nginx/html/index.html
@@ -1025,9 +1031,10 @@ Commercial support is available at
 root@nginx-deployment-5b98d885c7-xdn7h:/#
 ```
 
-In our own use case here, We will use configMap to create a file in a volume.  
 
-``` bash
+Creating configmap manifest
+
+```css
 hector@hector-Laptop:~/Project23$ cat nginx-configmap.yaml
 apiVersion: v1
 kind: ConfigMap
@@ -1060,6 +1067,8 @@ data:
     </body>
     </html>
 ```
+
+Apply the new manifest file
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-configmap.yaml
 configmap/website-index-file created
@@ -1067,15 +1076,12 @@ configmap/website-index-file created
 
 
 Update the deployment file to use the configmap in the volumeMounts section  
-
+<!--
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod
 nginx-pod-with-cm.yaml  nginx-pod.yaml          nginx-pod.yamlBAK
 ```
-```css
-hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod-with-cm.yaml
-deployment.apps/nginx-deployment created
-```
+-->
 ```css
 hector@hector-Laptop:~/Project23$ cat nginx-pod-with-cm.yaml
 apiVersion: apps/v1
@@ -1112,11 +1118,18 @@ spec:
             path: index.html
 ```
 
+```css
+hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod-with-cm.yaml
+deployment.apps/nginx-deployment created
+```
+
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-7dcdfbd66f-m527b   1/1     Running   0          2m3s
 ```
+
+Now the **index.html** file is no longer ephemeral because it is using a configMap that has been mounted onto the filesystem. This is now evident when we exec into the pod and list the `/usr/share/nginx/html` directory
 ```css
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-7dcdfbd66f-m527b -- bash
 root@nginx-deployment-7dcdfbd66f-m527b:/# ls -ltr  /usr/share/nginx/html
@@ -1124,32 +1137,38 @@ total 0
 lrwxrwxrwx 1 root root 17 Aug 11 21:29 index.html -> ..data/index.html
 root@nginx-deployment-7dcdfbd66f-m527b:/#
 ```
+*We can now see that the index.html is now a soft link to `../data`*  
+
+Now if we make any change to the content of the html file through the configMap, and restart the pod, all our changes will persist. Lets try that:  
+
+List the available configmaps. We can either use kubectl get configmap or kubectl get cm
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get configmap
 NAME                 DATA   AGE
 kube-root-ca.crt     1      5h50m
 website-index-file   1      9m16s
 ```
-```css
-hector@hector-Laptop:~/Project23$ kubectl get configmap
-NAME                 DATA   AGE
-kube-root-ca.crt     1      5h50m
-website-index-file   1      9m16s
-```
+
+To update the configmap.  can either update the manifest file, or the kubernetes object directly. Lets use the latter approach this time.
+kubectl edit cm website-index-file 
+It will open up a vim editor, or whatever default editor r system is configured to use. Update the content as  like. "Only the html data section", then save the file.
+
+
+We will update configMap by modiying the kubernetes object directly ( can also acomplish this updting the manifefst file). To update the object we `kubectl edit cm website-index-file` (It will open up the default text editor configured in the system to use. We Update the content as  like.)
 ```css
 hector@hector-Laptop:~/Project23$ kubectl edit cm website-index-file
 configmap/website-index-file edited
 ``` 
-
+In our case I have udpate the heading to say "USING ConfigMAP!"
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/configmap.png) 
 
-
+Once again to get the ClusterIP to access it via lynx
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get service
 NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
 kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h54m
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   32m
 ```
-
+Without restarting the pod, the site should be loaded automatically.
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/usingconfigmap.png)  
 
