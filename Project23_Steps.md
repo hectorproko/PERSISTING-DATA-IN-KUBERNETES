@@ -1149,20 +1149,15 @@ kube-root-ca.crt     1      5h50m
 website-index-file   1      9m16s
 ```
 
-To update the configmap.  can either update the manifest file, or the kubernetes object directly. Lets use the latter approach this time.
-kubectl edit cm website-index-file 
-It will open up a vim editor, or whatever default editor r system is configured to use. Update the content as  like. "Only the html data section", then save the file.
-
-
-We will update configMap by modiying the kubernetes object directly ( can also acomplish this updting the manifefst file). To update the object we `kubectl edit cm website-index-file` (It will open up the default text editor configured in the system to use. We Update the content as  like.)
+We will update configMap by modiying the kubernetes object directly *(can also be done by updating the manifest file*). To update the object we use `kubectl edit cm website-index-file` *(It will open up the default text editor configured in the system to use. We Update the content as we like.)*
 ```css
 hector@hector-Laptop:~/Project23$ kubectl edit cm website-index-file
 configmap/website-index-file edited
 ``` 
-In our case I have udpate the heading to say "USING ConfigMAP!"
+In our case I have udpated the heading to say "**USING ConfigMAP!**"  
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/configmap.png) 
 
-Once again to get the ClusterIP to access it via lynx
+Once again to get the ClusterIP and access it via lynx
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get service
 NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
@@ -1171,4 +1166,4 @@ nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f
 ```
 Without restarting the pod, the site should be loaded automatically.
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/usingconfigmap.png)  
-
+*Updating a ConfigMap's data will cause its changes to be seen by pods using it, whether those pods are restarted or not.*
