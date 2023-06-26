@@ -1,5 +1,5 @@
 # PERSISTING-DATA-IN-KUBERNETES
-In PROJECT 23, I demonstrate the deployment of an Nginx web server using Kubernetes. I explore various concepts such as **ConfigMaps** for managing configuration data and **PersistentVolumes** for data persistence. 
+In PROJECT 23, I demonstrate the deployment of an **Nginx** web server using Kubernetes. I explore various concepts such as **ConfigMaps** for managing configuration data and **PersistentVolumes** for data persistence. 
 
 <!--
 Could be a reusable file
