@@ -446,7 +446,7 @@ hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment configured
 ```
 
-To keep it simple will keep the replicateSet to 1
+To keep it simple will keep the **replicateSet **to 1
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
@@ -631,11 +631,11 @@ Kubernetes provides API objects for storage management such that, the lower leve
 
 PersistentVolumes (**PV**s) are volume plugins, they are responsible for interacting with the underlying storage systems and providing the necessary functionality to manage and access volumes. **PV**s act as an abstraction layer between the Kubernetes cluster and the actual storage infrastructure. The concept of **PV** plugins allows Kubernetes to support various storage providers and technologies without tightly coupling the core platform to specific storage implementations. 
 
-Persistent Volume Claims (**PVC**s) in Kubernetes serve as a means for Pods to request storage resources from Persistent Volumes (**PV**s). A **PVC** acts as a user's request for a specific amount of storage with specific access modes, indicating how the storage can be used (e.g., ReadWriteOnce, ReadOnlyMany, ReadWriteMany). Users can create **PVC**s manually or Kubernetes can create them automatically based on Pod specifications. When a **PVC** is created, it searches for available **PV**s that match the requested storage requirements, and upon a successful match, the **PVC** is bound to the **PV**. By using **PVC**s, Pods can dynamically claim the required storage resources from the available pool of **PV**s, ensuring that the desired storage capacity and access modes are met for the application's persistent data needs.
+Persistent Volume Claims (**PVC**s) in Kubernetes serve as a means for **Pod**s to request storage resources from Persistent Volumes (**PV**s). A **PVC** acts as a user's request for a specific amount of storage with specific access modes, indicating how the storage can be used (e.g., ReadWriteOnce, ReadOnlyMany, ReadWriteMany). Users can create **PVC**s manually or Kubernetes can create them automatically based on **Pod** specifications. When a **PVC** is created, it searches for available **PV**s that match the requested storage requirements, and upon a successful match, the **PVC** is bound to the **PV**. By using **PVC**s, **Pod**s can dynamically claim the required storage resources from the available pool of **PV**s, ensuring that the desired storage capacity and access modes are met for the application's persistent data needs.
 
-In summary, **PV**s are the actual storage resources in the cluster, while **PVC**s are the requests made by Pods to use those storage resources. **PVC**s provide a way to dynamically provision and consume storage in a Kubernetes cluster, while **PV**s provide the underlying storage infrastructure.  
+In summary, **PV**s are the actual storage resources in the cluster, while **PVC**s are the requests made by **Pod**s to use those storage resources. **PVC**s provide a way to dynamically provision and consume storage in a Kubernetes cluster, while **PV**s provide the underlying storage infrastructure.  
 
-In order for a cluster to dynamically create Persistent Volumes (**PV**s), which are then used by Pods for persistent storage, we need to have a **StorageClass** defined. The **StorageClass** specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS **EBS**. 
+In order for a cluster to dynamically create Persistent Volumes (**PV**s), which are then used by **Pod**s for persistent storage, we need to have a **StorageClass** defined. The **StorageClass** specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS **EBS**. 
 
 **StorageClass** is a Kubernetes resource that we define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
 Example:  
@@ -665,10 +665,10 @@ parameters:
    - Dynamic: When there is no **PV** matching a PVC’s request, then based on the available **StorageClass**, a dynamic **PV** will be created for use by the **PVC**. If there is not **StorageClass**, then the request for a **PV** by the **PVC** will fail.  
 
 2. Binding: **PVC**s are bound to specifiv **PV**s. This binding is exclusive. A **PVC** to **PV** binding is a one-to-one mapping. Claims will remain unbound indefinitely if a matching volume does not exist. Claims will be bound as matching volumes become available. For example, a cluster provisioned with many 50Gi **PV**s would not match a **PVC** requesting 100Gi. The **PVC** can be bound when a 100Gi **PV** is added to the cluster.
-3. Using: Pods use claims as volumes. The cluster inspects the claim to find the bound volume and mounts that volume for a Pod. For volumes that support multiple access modes, the user specifies which mode is desired when using their claim as a volume in a Pod. Once a user has a claim and that claim is bound, the bound **PV** belongs to the user for as long as they need it. Users schedule Pods and access their claimed **PV**s by including a persistentVolumeClaim section in a Pod’s volumes block
-4. Storage Object in Use Protection: The purpose of the Storage Object in Use Protection feature is to ensure that PersistentVolumeClaims (**PVC**s) in active use by a Pod and PersistentVolume (**PV**s) that are bound to **PVC**s are not removed from the system, as this may result in data loss. 
+3. Using: **Pod**s use claims as volumes. The cluster inspects the claim to find the bound volume and mounts that volume for a **Pod**. For volumes that support multiple access modes, the user specifies which mode is desired when using their claim as a volume in a **Pod**. Once a user has a claim and that claim is bound, the bound **PV** belongs to the user for as long as they need it. Users schedule **Pod**s and access their claimed **PV**s by including a persistentVolumeClaim section in a Pod’s volumes block
+4. Storage Object in Use Protection: The purpose of the Storage Object in Use Protection feature is to ensure that PersistentVolumeClaims (**PVC**s) in active use by a **Pod** and PersistentVolume (**PV**s) that are bound to **PVC**s are not removed from the system, as this may result in data loss. 
 
-	Note: **PVC** is in active use by a Pod when a Pod object exists that is using the **PVC**. If a user deletes a **PVC** in active use by a Pod, the **PVC** is not removed immediately. **PVC** removal is postponed until the **PVC** is no longer actively used by any Pods. Also, if an admin deletes a **PV** that is bound to a **PVC**, the **PV** is not removed immediately. **PV** removal is postponed until the **PV** is no longer bound to a **PVC**.
+	Note: **PVC** is in active use by a **Pod** when a **Pod** object exists that is using the **PVC**. If a user deletes a **PVC** in active use by a **Pod**, the **PVC** is not removed immediately. **PVC** removal is postponed until the **PVC** is no longer actively used by any **Pod**s. Also, if an admin deletes a **PV** that is bound to a **PVC**, the **PV** is not removed immediately. **PV** removal is postponed until the **PV** is no longer bound to a **PVC**.
 5. Reclaiming: When a user is done with their volume, they can delete the **PVC** objects from the API that allows reclamation of the resource. The reclaim policy for a PersistentVolume tells the cluster what to do with the volume after it has been released of its claim. Currently, volumes can either be Retained, Recycled, or Deleted.
    - Retain: The Retain reclaim policy allows for manual reclamation of the resource. When the PersistentVolumeClaim is deleted, the PersistentVolume still exists and the volume is considered "released". But it is not yet available for another claim because the previous claimant’s data remains on the volume.
    - Delete: For volume plugins that support the Delete reclaim policy, deletion removes both the PersistentVolume object from Kubernetes, as well as the associated storage asset in the external infrastructure, such as an AWS **EBS**. Volumes that were dynamically provisioned inherit the reclaim policy of their **StorageClass**, which defaults to Delete  
@@ -756,7 +756,7 @@ Events:
 The *waiting for first consumer to be created before binding* is a configuration setting from the storageClass `VolumeBindingMode`.  
 
 
-The issue in this case was the unavailability of nodes in the cluster for scheduling Pods.  
+The issue in this case was the unavailability of nodes in the cluster for scheduling **Pod**s.  
 
 Troubleshooted this issue following these steps:
 
@@ -766,17 +766,17 @@ hector@hector-Laptop:~/Project23$ kubectl get deployments
 NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   0/1     1            0           6m28s
 ```
-*The desired number of Pods was not ready, it indicates an issue with Pod creation.*
+*The desired number of **Pod**s was not ready, it indicates an issue with **Pod** creation.*
 
-Verify the status of the Pods:  
+Verify the status of the **Pod**s:  
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-7676f8b4d9-m5v2t   0/1     Pending   0          4m58s
 ```
-*The Pods were in a pending state, it suggests a problem with Pod scheduling.*  
+*The **Pod**s were in a pending state, it suggests a problem with **Pod** scheduling.*  
 
-`Describe`d the Pod to identify the specific issue:
+`Describe` the **Pod** to identify the specific issue:
 ```css
 hector@hector-Laptop:~/Project23$ kubectl describe nginx-deployment-7676f8b4d9-m5v2t
 	Events:
@@ -784,7 +784,7 @@ hector@hector-Laptop:~/Project23$ kubectl describe nginx-deployment-7676f8b4d9-m
 	  ----     ------            ----                 ----               -------
 	  Warning  FailedScheduling  55s (x5 over 5m23s)  default-scheduler  no nodes available to schedule pods
 ```
-*Looked for events or messages that provide information about the problem. In this case, the issue was the unavailability of nodes in the cluster to schedule the Pods.*  
+*Looked for events or messages that provide information about the problem. In this case, the issue was the unavailability of nodes in the cluster to schedule the **Pod**s.*  
 
 Took the necessary steps to provision additional nodes.  
 
@@ -814,7 +814,7 @@ NAME                                       CAPACITY   ACCESS MODES   RECLAIM POL
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
 ```
 
-The next step is to apply the deployment configuration to create the **Nginx** deployment to configure the Pod spec to use the **PVC**  
+The next step is to apply the deployment configuration to create the **Nginx** deployment to configure the **Pod** spec to use the **PVC**  
 
 ``` bash
 hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
@@ -941,7 +941,7 @@ hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-78503539
 
 ### PCONFIGMAP
 
-Using configMaps for persistence is not something to consider for data storage. Rather it is a way to manage configuration files and ensure they are not lost as a result of Pod replacement. To demonstrate this, we will use the HTML file that came with **Nginx**. This file can be found in `/usr/share/nginx/html/index.html`  directory.  
+Using configMaps for persistence is not something to consider for data storage. Rather it is a way to manage configuration files and ensure they are not lost as a result of **Pod** replacement. To demonstrate this, we will use the HTML file that came with **Nginx**. This file can be found in `/usr/share/nginx/html/index.html`  directory.  
 
 
 
