@@ -116,7 +116,7 @@ spec:
         - containerPort: 80
 ```
 
-Verify that the pod is running  
+Verify that the **pod** is running  
 ```
 hector@hector-Laptop:~/Project23$ kubectl get pods
 NAME                                READY   STATUS    RESTARTS   AGE
@@ -125,7 +125,7 @@ nginx-deployment-6fdcffd8fc-l75gk   1/1     Running   0          22s
 nginx-deployment-6fdcffd8fc-zxk9p   1/1     Running   0          22s
 ```
 
-Check the logs of the pod  
+Check the logs of the **pod**  
 
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl logs nginx-deployment-6fdcffd8fc-j2jtt
@@ -147,7 +147,7 @@ hector@hector-Laptop:~/Project23$ kubectl logs nginx-deployment-6fdcffd8fc-j2jtt
 2022/08/11 17:36:08 [notice] 1#1: start worker process 32
 ```
 
-Exec into the pod and navigate to the nginx configuration file `/etc/nginx/conf.d/default.conf`  
+Exec into the **pod** and navigate to the nginx configuration file `/etc/nginx/conf.d/default.conf`  
 Open the config files to see the default configuration.  
 Information we need may include the path the "document root" (`/usr/share/nginx/html`) this is the directory that nginx inspects in order to serve files for incoming client requests. We will use later as a mount point
 
@@ -203,7 +203,7 @@ server {
 root@nginx-deployment-6fdcffd8fc-j2jtt:/#
 ```
 
- Before we **Create Volume** first we have to check the **AZ** (Availability Zone) of the worker node where the pod is running. Those instances need to be in the same region and availability zone as the **EBS** volume
+ Before we **Create Volume** first we have to check the **AZ** (Availability Zone) of the worker node where the **pod** is running. Those instances need to be in the same region and availability zone as the **EBS** volume
 
 Note: **EBS** only supports a single **EC2** instance mounting a volume
 
@@ -453,7 +453,7 @@ NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5844d76665-gq748   1/1     Running   0          7s
 ```
 
-So we checked the node the running pod its in and confirmed it was on east-a availability zone as the **EBS** we created  
+So we checked the node the running **pod** its in and confirmed it was on east-a availability zone as the **EBS** we created  
 
 <details close>
 <summary><b>Getting more information from pod and deployment using describe</b></summary>
@@ -575,7 +575,7 @@ Events:
 </details>  
 
 
-At this point, even though the pod can be used for a stateful application, the configuration is not yet complete. This is because, the volume is not yet mounted onto any specific filesystem inside the container. The directory /usr/share/nginx/html which holds the software/website code is still ephemeral, and if there is any kind of update to the index.html file, the new changes will only be there for as long as the pod is still running. If the pod dies after, all previously written data will be erased.
+At this point, even though the **pod** can be used for a stateful application, the configuration is not yet complete. This is because, the volume is not yet mounted onto any specific filesystem inside the container. The directory /usr/share/nginx/html which holds the software/website code is still ephemeral, and if there is any kind of update to the index.html file, the new changes will only be there for as long as the **pod** is still running. If the **pod** dies after, all previously written data will be erased.
 
 
 To complete the configuration, we will need to add another section to the deployment yaml manifest. The **volumeMounts** which basically answers the question "Where should this Volume be mounted inside the container?" Mounting a volume to a directory means that all data written to the directory will be stored on that volume.
@@ -614,7 +614,7 @@ spec:
           fsType: ext4
 ```
 
-We apply the new configuration the old pod will be terminated while the updated one will be up and running.
+We apply the new configuration the old **pod** will be terminated while the updated one will be up and running.
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod.yaml
 deployment.apps/nginx-deployment configured
@@ -847,7 +847,7 @@ spec:
         persistentVolumeClaim:
           claimName: nginx-volume-claim
 ```
-*The configuration also includes the specification for mounting the persistent volume claim (**nginx-volume-claim**) to the pod's container at the path `/tmp/dare`. This allows the pod to access and utilize the persistent storage provided by the **PVC**.*  
+*The configuration also includes the specification for mounting the persistent volume claim (**nginx-volume-claim**) to the **pod**'s container at the path `/tmp/dare`. This allows the **pod** to access and utilize the persistent storage provided by the **PVC**.*  
 
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
@@ -1129,7 +1129,7 @@ NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-7dcdfbd66f-m527b   1/1     Running   0          2m3s
 ```
 
-Now the **index.html** file is no longer ephemeral because it is using a configMap that has been mounted onto the filesystem. This is now evident when we exec into the pod and list the `/usr/share/nginx/html` directory
+Now the **index.html** file is no longer ephemeral because it is using a **configMap** that has been mounted onto the filesystem. This is now evident when we exec into the **pod** and list the `/usr/share/nginx/html` directory
 ```css
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-7dcdfbd66f-m527b -- bash
 root@nginx-deployment-7dcdfbd66f-m527b:/# ls -ltr  /usr/share/nginx/html
@@ -1139,9 +1139,9 @@ root@nginx-deployment-7dcdfbd66f-m527b:/#
 ```
 *We can now see that the index.html is now a soft link to `../data`*  
 
-Now if we make any change to the content of the html file through the configMap, and restart the pod, all our changes will persist. Lets try that:  
+Now if we make any change to the content of the html file through the **configMap**, and restart the **pod**, all our changes will persist. Lets try that:  
 
-List the available configmaps. We can either use kubectl get **configmap** or kubectl get cm
+List the available configmaps. We can either use kubectl get configmap or kubectl get cm
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get configmap
 NAME                 DATA   AGE
@@ -1149,7 +1149,7 @@ kube-root-ca.crt     1      5h50m
 website-index-file   1      9m16s
 ```
 
-We will update configMap by modiying the kubernetes object directly *(can also be done by updating the manifest file*). To update the object we use `kubectl edit cm website-index-file` *(It will open up the default text editor configured in the system to use. We Update the content as we like.)*
+We will update **configMap** by modiying the kubernetes object directly *(can also be done by updating the manifest file*). To update the object we use `kubectl edit cm website-index-file` *(It will open up the default text editor configured in the system to use. We Update the content as we like.)*
 ```css
 hector@hector-Laptop:~/Project23$ kubectl edit cm website-index-file
 configmap/website-index-file edited
@@ -1164,6 +1164,6 @@ NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                     
 kubernetes      ClusterIP      10.100.0.1       <none>                                                                   443/TCP        5h54m
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   32m
 ```
-Without restarting the pod, the site should be loaded automatically.
+Without restarting the **pod**, the site should be loaded automatically.
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/usingconfigmap.png)  
 *Updating a **ConfigMap**'s data will cause its changes to be seen by pods using it, whether those pods are restarted or not.*
