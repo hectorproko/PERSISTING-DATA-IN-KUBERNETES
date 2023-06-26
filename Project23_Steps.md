@@ -990,7 +990,7 @@ kubernetes      ClusterIP      10.100.0.1       <none>                          
 nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f-785035398.us-east-1.elb.amazonaws.com   80:30460/TCP   8m50s
 ```
 
-Using lynx to access the page we ensure that we are able to see the "Welcome to nginx" page
+Using **lynx* to access the page we ensure that we are able to see the "Welcome to nginx" page
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/welcomenginx3.png) 
 
 
@@ -1157,7 +1157,7 @@ configmap/website-index-file edited
 In our case I have udpated the heading to say "**USING ConfigMAP!**"  
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/configmap.png) 
 
-Once again to get the ClusterIP and access it via lynx
+Once again to get the **ClusterIP** and access it via **lynx**
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl get service
 NAME            TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)        AGE
@@ -1166,4 +1166,4 @@ nginx-service   LoadBalancer   10.100.182.155   aab8c1f0d166c4dfba6efab2c8126f6f
 ```
 Without restarting the pod, the site should be loaded automatically.
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/usingconfigmap.png)  
-*Updating a ConfigMap's data will cause its changes to be seen by pods using it, whether those pods are restarted or not.*
+*Updating a **ConfigMap**'s data will cause its changes to be seen by pods using it, whether those pods are restarted or not.*
