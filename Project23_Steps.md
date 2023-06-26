@@ -203,9 +203,9 @@ server {
 root@nginx-deployment-6fdcffd8fc-j2jtt:/#
 ```
 
- Before we **Create Volume** first we have to check the AZ (Availability Zone) of the worker node where the pod is running. Those instances need to be in the same region and availability zone as the EBS volume
+ Before we **Create Volume** first we have to check the **AZ** (Availability Zone) of the worker node where the pod is running. Those instances need to be in the same region and availability zone as the **EBS** volume
 
-Note: EBS only supports a single EC2 instance mounting a volume
+Note: **EBS** only supports a single **EC2** instance mounting a volume
 
 
 Below we see the internal IP of the nodes ip-`192-168-138-68`.ec2.internal and ip-`192-168-229-214`.ec2.internal
@@ -398,19 +398,19 @@ Events:                       <none>
 </details>
 
 
-Based on the describe output above our **3 PODS** are running on **2 NODES** with 2 AZ  `zone=us-east-1a` and `zone=us-east-1b`  
+Based on the describe output above our **3 PODS** are running on **2 NODES** with 2 **AZ**  `zone=us-east-1a` and `zone=us-east-1b`  
 
-I'll choose  `zone=us-east-1a` to create a volume in AWS
+I'll choose  `zone=us-east-1a` to create a volume in **AWS**
 
-1. In r AWS console, head over to the EC2 section and scroll down to the **Elastic Block Storage** menu.
+1. In  **AWS** console, head over to the **EC2** section and scroll down to the **Elastic Block Storage** menu.
 2. Click on Volumes
 3. At the top right, click on **Create Volume**  
 
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/createvolume.png)   
 
-Lets see what `nginx-pod.yaml` looks like for our Nginx pod to persist data using **awsElasticBlockStore** volume. 
+Lets see what `nginx-pod.yaml` looks like for our **Nginx** pod to persist data using **awsElasticBlockStore** volume. 
 
-Notice the **volumeID** entry contains the value of an **EBS ID** *(the one we just created)*  dddd
+Notice the **volumeID** entry contains the value of an **EBS ID** *(the one we just created)*  
 ```css
 hector@hector-Laptop:~/Project23$ cat nginx-pod.yaml
 apiVersion: apps/v1
@@ -453,7 +453,7 @@ NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5844d76665-gq748   1/1     Running   0          7s
 ```
 
-So we checked the node the running pod its in and confirmed it was on east-a availability zone as the EBS we created  
+So we checked the node the running pod its in and confirmed it was on east-a availability zone as the **EBS** we created  
 
 <details close>
 <summary><b>Getting more information from pod and deployment using describe</b></summary>
@@ -629,15 +629,15 @@ deployment.apps/nginx-deployment configured
 
 Kubernetes provides API objects for storage management such that, the lower level details of volume provisioning, storage allocation, access management etc are all abstracted away from the user, and all we have to do is present manifest files that describes what we want to get done.
 
-PersistentVolumes (**PV**s) are volume plugins, they are responsible for interacting with the underlying storage systems and providing the necessary functionality to manage and access volumes. PVs act as an abstraction layer between the Kubernetes cluster and the actual storage infrastructure. The concept of PV plugins allows Kubernetes to support various storage providers and technologies without tightly coupling the core platform to specific storage implementations. 
+PersistentVolumes (**PV**s) are volume plugins, they are responsible for interacting with the underlying storage systems and providing the necessary functionality to manage and access volumes. **PV**s act as an abstraction layer between the Kubernetes cluster and the actual storage infrastructure. The concept of **PV** plugins allows Kubernetes to support various storage providers and technologies without tightly coupling the core platform to specific storage implementations. 
 
-Persistent Volume Claims (PVCs) in Kubernetes serve as a means for Pods to request storage resources from Persistent Volumes (PVs). A PVC acts as a user's request for a specific amount of storage with specific access modes, indicating how the storage can be used (e.g., ReadWriteOnce, ReadOnlyMany, ReadWriteMany). Users can create PVCs manually or Kubernetes can create them automatically based on Pod specifications. When a PVC is created, it searches for available PVs that match the requested storage requirements, and upon a successful match, the PVC is bound to the PV. By using PVCs, Pods can dynamically claim the required storage resources from the available pool of PVs, ensuring that the desired storage capacity and access modes are met for the application's persistent data needs.
+Persistent Volume Claims (**PVC**s) in Kubernetes serve as a means for Pods to request storage resources from Persistent Volumes (**PV**s). A **PVC** acts as a user's request for a specific amount of storage with specific access modes, indicating how the storage can be used (e.g., ReadWriteOnce, ReadOnlyMany, ReadWriteMany). Users can create **PVC**s manually or Kubernetes can create them automatically based on Pod specifications. When a **PVC** is created, it searches for available **PV**s that match the requested storage requirements, and upon a successful match, the **PVC** is bound to the **PV**. By using **PVC**s, Pods can dynamically claim the required storage resources from the available pool of **PV**s, ensuring that the desired storage capacity and access modes are met for the application's persistent data needs.
 
-In summary, PVs are the actual storage resources in the cluster, while PVCs are the requests made by Pods to use those storage resources. PVCs provide a way to dynamically provision and consume storage in a Kubernetes cluster, while PVs provide the underlying storage infrastructure.  
+In summary, **PV**s are the actual storage resources in the cluster, while **PVC**s are the requests made by Pods to use those storage resources. **PVC**s provide a way to dynamically provision and consume storage in a Kubernetes cluster, while **PV**s provide the underlying storage infrastructure.  
 
-In order for a cluster to dynamically create Persistent Volumes (PVs), which are then used by Pods for persistent storage, we need to have a StorageClass defined. The StorageClass specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS EBS. 
+In order for a cluster to dynamically create Persistent Volumes (**PV**s), which are then used by Pods for persistent storage, we need to have a **StorageClass** defined. The **StorageClass** specifies the type of storage system we plan to use, such as NFS, iSCSI, or a cloud provider-specific storage system like AWS **EBS**. 
 
-StorageClass is a Kubernetes resource that we define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
+**StorageClass** is a Kubernetes resource that we define within the cluster by creating a manifest file that describes its properties and applying it to the cluster using the `kubectl apply` command.  
 Example:  
 ```css
 kind: StorageClass
@@ -656,31 +656,31 @@ parameters:
 
 
 <details close>
-<summary><b>Notes: Lifecycle of a PV and PVC</b></summary>
+<summary><b>Notes: Lifecycle of a **PV** and **PVC**</b></summary>
 
-PVs are resources in the cluster. PVCs are requests for those resources and also act as claim checks to the resource. The interaction between PVs and PVCs follows this lifecycle:  
+**PV**s are resources in the cluster. **PVC**s are requests for those resources and also act as claim checks to the resource. The interaction between **PV**s and **PVC**s follows this lifecycle:  
 
-1. Provisioning: There are two ways PVs may be provisioned: statically or dynamically.
-   - Static/Manual Provisioning: A cluster administrator creates a number of PVs using a manifest file which will contain all the details of the real storage. PVs are not scoped to namespaces, they a clusterwide wide resource, therefore the PV will be available for use when requested. PVCs on the other hand are namespace scoped.
-   - Dynamic: When there is no PV matching a PVC’s request, then based on the available StorageClass, a dynamic PV will be created for use by the PVC. If there is not StorageClass, then the request for a PV by the PVC will fail.  
+1. Provisioning: There are two ways **PV**s may be provisioned: statically or dynamically.
+   - Static/Manual Provisioning: A cluster administrator creates a number of **PV**s using a manifest file which will contain all the details of the real storage. **PV**s are not scoped to namespaces, they a clusterwide wide resource, therefore the **PV** will be available for use when requested. **PVC**s on the other hand are namespace scoped.
+   - Dynamic: When there is no **PV** matching a PVC’s request, then based on the available **StorageClass**, a dynamic **PV** will be created for use by the **PVC**. If there is not **StorageClass**, then the request for a **PV** by the **PVC** will fail.  
 
-2. Binding: PVCs are bound to specifiv PVs. This binding is exclusive. A PVC to PV binding is a one-to-one mapping. Claims will remain unbound indefinitely if a matching volume does not exist. Claims will be bound as matching volumes become available. For example, a cluster provisioned with many 50Gi PVs would not match a PVC requesting 100Gi. The PVC can be bound when a 100Gi PV is added to the cluster.
-3. Using: Pods use claims as volumes. The cluster inspects the claim to find the bound volume and mounts that volume for a Pod. For volumes that support multiple access modes, the user specifies which mode is desired when using their claim as a volume in a Pod. Once a user has a claim and that claim is bound, the bound PV belongs to the user for as long as they need it. Users schedule Pods and access their claimed PVs by including a persistentVolumeClaim section in a Pod’s volumes block
-4. Storage Object in Use Protection: The purpose of the Storage Object in Use Protection feature is to ensure that PersistentVolumeClaims (PVCs) in active use by a Pod and PersistentVolume (PVs) that are bound to PVCs are not removed from the system, as this may result in data loss. 
+2. Binding: **PVC**s are bound to specifiv **PV**s. This binding is exclusive. A **PVC** to **PV** binding is a one-to-one mapping. Claims will remain unbound indefinitely if a matching volume does not exist. Claims will be bound as matching volumes become available. For example, a cluster provisioned with many 50Gi **PV**s would not match a **PVC** requesting 100Gi. The **PVC** can be bound when a 100Gi **PV** is added to the cluster.
+3. Using: Pods use claims as volumes. The cluster inspects the claim to find the bound volume and mounts that volume for a Pod. For volumes that support multiple access modes, the user specifies which mode is desired when using their claim as a volume in a Pod. Once a user has a claim and that claim is bound, the bound **PV** belongs to the user for as long as they need it. Users schedule Pods and access their claimed **PV**s by including a persistentVolumeClaim section in a Pod’s volumes block
+4. Storage Object in Use Protection: The purpose of the Storage Object in Use Protection feature is to ensure that PersistentVolumeClaims (**PVC**s) in active use by a Pod and PersistentVolume (**PV**s) that are bound to **PVC**s are not removed from the system, as this may result in data loss. 
 
-	Note: PVC is in active use by a Pod when a Pod object exists that is using the PVC. If a user deletes a PVC in active use by a Pod, the PVC is not removed immediately. PVC removal is postponed until the PVC is no longer actively used by any Pods. Also, if an admin deletes a PV that is bound to a PVC, the PV is not removed immediately. PV removal is postponed until the PV is no longer bound to a PVC.
-5. Reclaiming: When a user is done with their volume, they can delete the PVC objects from the API that allows reclamation of the resource. The reclaim policy for a PersistentVolume tells the cluster what to do with the volume after it has been released of its claim. Currently, volumes can either be Retained, Recycled, or Deleted.
+	Note: **PVC** is in active use by a Pod when a Pod object exists that is using the **PVC**. If a user deletes a **PVC** in active use by a Pod, the **PVC** is not removed immediately. **PVC** removal is postponed until the **PVC** is no longer actively used by any Pods. Also, if an admin deletes a **PV** that is bound to a **PVC**, the **PV** is not removed immediately. **PV** removal is postponed until the **PV** is no longer bound to a **PVC**.
+5. Reclaiming: When a user is done with their volume, they can delete the **PVC** objects from the API that allows reclamation of the resource. The reclaim policy for a PersistentVolume tells the cluster what to do with the volume after it has been released of its claim. Currently, volumes can either be Retained, Recycled, or Deleted.
    - Retain: The Retain reclaim policy allows for manual reclamation of the resource. When the PersistentVolumeClaim is deleted, the PersistentVolume still exists and the volume is considered "released". But it is not yet available for another claim because the previous claimant’s data remains on the volume.
-   - Delete: For volume plugins that support the Delete reclaim policy, deletion removes both the PersistentVolume object from Kubernetes, as well as the associated storage asset in the external infrastructure, such as an AWS EBS. Volumes that were dynamically provisioned inherit the reclaim policy of their StorageClass, which defaults to Delete  
+   - Delete: For volume plugins that support the Delete reclaim policy, deletion removes both the PersistentVolume object from Kubernetes, as well as the associated storage asset in the external infrastructure, such as an AWS **EBS**. Volumes that were dynamically provisioned inherit the reclaim policy of their **StorageClass**, which defaults to Delete  
 ### NOTES:
-1. When PVCs are created with a specific size, it cannot be expanded except the storageClass is configured to allow expansion with the allowVolumeExpansion field is set to true in the manifest YAML file. This is "unset" by default in EKS.  
-2. When a PV has been provisioned in a specific availability zone, only pods running in that zone can use the PV. If a pod spec containing a PVC is created in another AZ and attempts to reuse an already bound PV, then the pod will remain in pending state and report volume node affinity conflict. Anytime you see this message, this will help you to understand what the problem is.  
-3. PVs are not scoped to namespaces, they a clusterwide wide resource. PVCs on the other hand are namespace scoped.  
+1. When **PVC**s are created with a specific size, it cannot be expanded except the storageClass is configured to allow expansion with the allowVolumeExpansion field is set to true in the manifest YAML file. This is "unset" by default in **EKS**.  
+2. When a **PV** has been provisioned in a specific availability zone, only pods running in that zone can use the **PV**. If a pod spec containing a **PVC** is created in another **AZ** and attempts to reuse an already bound **PV**, then the pod will remain in pending state and report volume node affinity conflict. Anytime you see this message, this will help you to understand what the problem is.  
+3. **PV**s are not scoped to namespaces, they a clusterwide wide resource. **PVC**s on the other hand are namespace scoped.  
 Learn more about the different types of persistent volumes here
 </details>
 
 
-In Amazon Elastic Kubernetes Service (EKS), the default StorageClass that is configured as part of the EKS installation is called gp2. The gp2 StorageClass is based on Amazon Elastic Block Store (EBS).
+In Amazon Elastic Kubernetes Service (**EKS**), the default **StorageClass** that is configured as part of the **EKS** installation is called **gp2**. The gp2 **StorageClass** is based on Amazon Elastic Block Store (**EBS**).
 
 ``` bash
 hector@hector-Laptop:~$ kubectl get storageclass
@@ -692,7 +692,7 @@ Now lets create some persistence for our nginx deployment. We will use **one** o
 
 **Approach 1**
 
-Create a manifest file for a PVC  
+Create a manifest file for a **PVC**  
 
 ```css
 hector@hector-Laptop:~$ nano nginx-volume-claim.yml
@@ -716,7 +716,7 @@ spec:
 ```
 </details>
 
-This will create the PVC with the name nginx-volume-claim.  
+This will create the **PVC** with the name nginx-volume-claim.  
 ```css
 hector@hector-Laptop:~$ kubectl apply -f nginx-volume-claim.yml
 persistentvolumeclaim/nginx-volume-claim created
@@ -732,8 +732,8 @@ hector@hector-Laptop:~$
 <!--Moved the manifest to **Project23** folder, (dont remember what this is for)-->
 
 
-If the status is **Pending**, it means that the PVC is waiting to be bound to a PersistentVolume (PV). To troubleshoot this, run a describe command on the PVC to get more information about its status.  
-*Look for the **Message** section in the output. In this case, we will see a message stating that the PVC is waiting for the first consumer to be created before binding.*
+If the status is **Pending**, it means that the **PVC** is waiting to be bound to a PersistentVolume (**PV**). To troubleshoot this, run a describe command on the **PVC** to get more information about its status.  
+*Look for the **Message** section in the output. In this case, we will see a message stating that the **PVC** is waiting for the first consumer to be created before binding.*
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl describe pvc nginx-volume-claim
 Name:          nginx-volume-claim
@@ -807,14 +807,14 @@ NAME               READY   UP-TO-DATE   AVAILABLE   AGE
 nginx-deployment   1/1     1            1           29m
 ```
 
-The Persistent Volume (PV) is associated with the Persistent Volume Claim (PVC) for storage allocation:
+The Persistent Volume (**PV**) is associated with the Persistent Volume Claim (**PVC**) for storage allocation:
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get pv
 NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                        STORAGECLASS   REASON   AGE
 pvc-aa96611c-aba1-42c4-b079-243af9ae7212   2Gi        RWO            Delete           Bound    default/nginx-volume-claim   gp2                     4m54s
 ```
 
-The next step is to apply the deployment configuration to create the Nginx deployment to configure the Pod spec to use the PVC  
+The next step is to apply the deployment configuration to create the **Nginx** deployment to configure the Pod spec to use the **PVC**  
 
 ``` bash
 hector@hector-Laptop:~/Project23$ cat nginxdeployment.yml
@@ -847,7 +847,7 @@ spec:
         persistentVolumeClaim:
           claimName: nginx-volume-claim
 ```
-*The configuration also includes the specification for mounting the persistent volume claim (**nginx-volume-claim**) to the pod's container at the path `/tmp/dare`. This allows the pod to access and utilize the persistent storage provided by the PVC.*  
+*The configuration also includes the specification for mounting the persistent volume claim (**nginx-volume-claim**) to the pod's container at the path `/tmp/dare`. This allows the pod to access and utilize the persistent storage provided by the **PVC**.*  
 
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginxdeployment.yml
@@ -863,7 +863,7 @@ EC2 > Elastic Block Store > Volumes
 ![logo](https://raw.githubusercontent.com/hectorproko/PERSISTING-DATA-IN-KUBERNETES/main/images/createvolume2.png)  
 
 
-I used the same service configuration file (`nginx-service.yaml`) from [Project 22](https://github.com/hectorproko/DEPLOYING-APPLICATIONS-INTO-KUBERNETES-CLUSTER/blob/main/Project22_Steps.md) to define the Nginx service. Here's the content of the configuration file:
+I used the same service configuration file (`nginx-service.yaml`) from [Project 22](https://github.com/hectorproko/DEPLOYING-APPLICATIONS-INTO-KUBERNETES-CLUSTER/blob/main/Project22_Steps.md) to define the **Nginx** service. Here's the content of the configuration file:
 
 ``` bash
 hector@hector-Laptop:~/Project23$ cat nginx-service.yaml
@@ -881,7 +881,7 @@ spec:
       targetPort: 80
 ```
 
-Creating the Nginx service based on the provided configuration file  
+Creating the **Nginx** service based on the provided configuration file  
 ```css
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-service.yaml
 service/nginx-service created
@@ -895,7 +895,7 @@ kubernetes      ClusterIP      10.100.0.1      <none>                           
 nginx-service   LoadBalancer   10.100.54.132   a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   80:31491/TCP   14s
 ```
 
-Accessing the Nginx service using the provided external IP. We can use a web browser or a command-line tool like Lynx to access the service.  
+Accessing the **Nginx** service using the provided external IP. We can use a web browser or a command-line tool like Lynx to access the service.  
 ``` bash
 hector@hector-Laptop:~/Project23$ lynx a69047daa62674e7392375d178cb0a9b-1787659259.us-east-1.elb.amazonaws.com   
 ```
@@ -941,7 +941,7 @@ hector@hector-Laptop:~/Project23$ lynx aab8c1f0d166c4dfba6efab2c8126f6f-78503539
 
 ### PCONFIGMAP
 
-Using configMaps for persistence is not something to consider for data storage. Rather it is a way to manage configuration files and ensure they are not lost as a result of Pod replacement. To demonstrate this, we will use the HTML file that came with Nginx. This file can be found in `/usr/share/nginx/html/index.html`  directory.  
+Using configMaps for persistence is not something to consider for data storage. Rather it is a way to manage configuration files and ensure they are not lost as a result of Pod replacement. To demonstrate this, we will use the HTML file that came with **Nginx**. This file can be found in `/usr/share/nginx/html/index.html`  directory.  
 
 
 
@@ -1000,7 +1000,7 @@ NAME                                READY   STATUS    RESTARTS   AGE
 nginx-deployment-5b98d885c7-xdn7h   1/1     Running   0          4m43s
 ```
 
-1. exec into the running container and copy the contents of **index.html**, we will need it to create a configmap.
+1. exec into the running container and copy the contents of **index.html**, we will need it to create a **configmap**.
 
 ```css
 hector@hector-Laptop:~/Project23$ kubectl exec -it nginx-deployment-5b98d885c7-xdn7h -- bash
@@ -1032,7 +1032,7 @@ root@nginx-deployment-5b98d885c7-xdn7h:/#
 ```
 
 
-Creating configmap manifest
+Creating **configmap** manifest
 
 ```css
 hector@hector-Laptop:~/Project23$ cat nginx-configmap.yaml
@@ -1075,7 +1075,7 @@ configmap/website-index-file created
 ```
 
 
-Update the deployment file to use the configmap in the volumeMounts section  
+Update the deployment file to use the **configmap** in the volumeMounts section  
 <!--
 ``` bash
 hector@hector-Laptop:~/Project23$ kubectl apply -f nginx-pod
@@ -1141,7 +1141,7 @@ root@nginx-deployment-7dcdfbd66f-m527b:/#
 
 Now if we make any change to the content of the html file through the configMap, and restart the pod, all our changes will persist. Lets try that:  
 
-List the available configmaps. We can either use kubectl get configmap or kubectl get cm
+List the available configmaps. We can either use kubectl get **configmap** or kubectl get cm
 ```css
 hector@hector-Laptop:~/Project23$ kubectl get configmap
 NAME                 DATA   AGE
